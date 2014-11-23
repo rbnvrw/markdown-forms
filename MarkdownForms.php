@@ -16,7 +16,7 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 	private $sInputGroupTemplate = '
 	<div class="form-group">
 		<label for="{md_name}">{md_label}</label>
-		<input type="{md_type}" name="{md_name}" placeholder="{md_placeholder}" {md_attribs}>
+		<input type="{md_type}" name="{md_name}" value="{md_value}" placeholder="{md_placeholder}" {md_attribs}>
 	</div>
 	';
 	
@@ -24,10 +24,12 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 	<div class="form-group">
 		<label for="{md_name}">{md_label}</label>
 		<textarea name="{md_name}" rows="{md_rows}" cols="{md_cols}" {md_attribs}>
+			{md_value}
+		</textarea>
 	</div>
 	';
 		
-	public function __construct() {
+	public function __construct($sInputGroupTemplate = '', $sTextareaGroupTemplate = '') {
 	#
 	# Constructor function. Initialize the parser object.
 	#
@@ -37,6 +39,14 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 			"doInputs"        => 70
 		);
 		
+		if(!empty($sInputGroupTemplate)){
+			$this->sInputGroupTemplate = $sInputGroupTemplate;
+		}
+		
+		if(!empty($sTextareaGroupTemplate)){
+			$this->sTextareaGroupTemplate = $sTextareaGroupTemplate;
+		}
+		
 		parent::__construct();
 	}
 
@@ -45,7 +55,7 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 	# Turn Markdown input shortcuts into <input> tags.
 	#
 		#
-		# First, handle inline inputs:  ?[type](label "placeholder" rows*cols){#id .class}
+		# First, handle inline inputs:  ?[type]("label" "value" "placeholder" rows*cols){#id .class}
 		# Don't forget: encode * and _
 		#
 		$text = preg_replace_callback('{
@@ -56,29 +66,37 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 			  \s?			# One optional whitespace character
 			  \(			# literal paren
 				[ \n]*
-				(?:
-					<(\S*)>	# label = $3
-				|
-					('.$this->nested_url_parenthesis_re.')	# label = $4
-				)
+				(			# $3
+				  ([\'"])	# quote char = $4
+				  (.*?)		# label = $5
+				  \4		# matching quote
+				  [ \n]*
+				)			
 				[ \n]*
-				(			# $5
-				  ([\'"])	# quote char = $6
-				  (.*?)		# placeholder = $7
-				  \6		# matching quote
+				(			# $6
+				  ([\'"])	# quote char = $7
+				  (.*?)		# value = $8
+				  \7		# matching quote
+				  [ \n]*
+				)			
+				[ \n]*
+				(			# $9
+				  ([\'"])	# quote char = $10
+				  (.*?)		# placeholder = $11
+				  \10		# matching quote
 				  [ \n]*
 				)?			# placeholder is optional
 				[ \n]*
-				(			# $8
-				([0-9]+)	# rows = $9
+				(			# $12
+				([0-9]+)	# rows = $13
 				[ \n]*
 				\*
 				[ \n]*
-				([0-9]+)	# cols = $10
+				([0-9]+)	# cols = $14
 				[ \n]*
 				)?			# rows*cols is optional
 			  \)
-			  (?:[ ]? '.$this->id_class_attr_catch_re.' )?	 # $11 = id/class attributes
+			  (?:[ ]? '.$this->id_class_attr_catch_re.' )?	 # $15 = id/class attributes
 			)
 			}xs',
 			array($this, '_doInputs_callback'), $text);
@@ -88,24 +106,17 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 	
 	protected function _doInputs_callback($matches) {
 		$whole_match = $matches[1];
-		$type = $matches[2];
-		$label = $matches[3] == '' ? $matches[4] : $matches[3];
-		$placeholder =& $matches[7];
+		$type = $this->encodeAttribute($matches[2]);
+		$label = $this->encodeAttribute($matches[5]);
+		$value = $this->encodeAttribute($matches[8]);
+		$placeholder = $this->encodeAttribute($matches[11]);
 		
 		if($type != "textarea"){
-			$attr = $this->doExtraAttributes("input", $dummy =& $matches[11]);
+			$attr = $this->doExtraAttributes("input", $dummy =& $matches[15]);
 		}else{
-			$attr = $this->doExtraAttributes("textarea", $dummy =& $matches[11]);
-			$rows = $this->encodeAttribute($matches[9]);
-			$cols = $this->encodeAttribute($matches[10]);
-		}
-
-		$type = $this->encodeAttribute($type);
-		$label = $this->encodeAttribute($label);
-		if (isset($placeholder)) {
-			$placeholder = $this->encodeAttribute($placeholder);
-		}else{
-			$placeholder = '';
+			$attr = $this->doExtraAttributes("textarea", $dummy =& $matches[15]);
+			$rows = $this->encodeAttribute($matches[13]);
+			$cols = $this->encodeAttribute($matches[14]);
 		}
 		
 		if($type != "textarea"){	
@@ -115,6 +126,8 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 			$result = str_replace('{md_rows}', $rows, $result);
 			$result = str_replace('{md_cols}', $cols, $result);
 		}
+		
+		$result = str_replace('{md_value}', $value, $result);
 		$result = str_replace('{md_name}', $this->sanitize_key($label), $result);
 		$result = str_replace('{md_type}', $type, $result);
 		$result = str_replace('{md_label}', $label, $result);
