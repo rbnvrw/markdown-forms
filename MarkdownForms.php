@@ -78,7 +78,7 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 				  (.*?)		# value = $8
 				  \7		# matching quote
 				  [ \n]*
-				)			
+				)?			# value is optional			
 				[ \n]*
 				(			# $9
 				  ([\'"])	# quote char = $10
