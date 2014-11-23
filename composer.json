@@ -1,0 +1,18 @@
+{
+  "name": "rbnvrw/markdown-forms",
+  "type": "library",
+  "description": "Class to add, validate and mail simple HTML/AJAX forms via Markdown",
+  "keywords": ["markdown", "form"],
+  "homepage": "http://rubenverweij.nl/",
+  "license": "MIT",
+  "authors": [
+  {
+    "name": "Ruben Verweij",
+    "email": "development@rubenverweij.nl"
+  }
+  ],
+  "require": {
+    "michelf/php-markdown": ">=1.3",
+    "phpmailer/phpmailer": ">=5.2.9"
+  }
+}
