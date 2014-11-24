@@ -12,10 +12,10 @@
   }
   ],
   "require": {
-    "michelf/php-markdown": ">=1.3",
-    "phpmailer/phpmailer": ">=5.2.9"
+    "michelf/php-markdown": "~1.3",
+    "phpmailer/phpmailer": "~5.2.9"
   },
   "autoload": {
-		"psr-4": { "RubenVerweij": "" }
+		"psr-4": { "RubenVerweij\\": "" }
   }
 }
