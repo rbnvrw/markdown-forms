@@ -15,15 +15,15 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 
 	private $sInputGroupTemplate = '
 	<div class="form-group">
-		<label for="{md_name}">{md_label}</label>
-		<input type="{md_type}" id="{md_name}" name="{md_name}" value="{md_value}" placeholder="{md_placeholder}" {md_attribs}>
+		{md_label}
+		<input {md_type} {md_name_and_id} {md_value} {md_placeholder} {md_attribs}>
 	</div>
 	';
 	
 	private $sTextareaGroupTemplate = '
 	<div class="form-group">
-		<label for="{md_name}">{md_label}</label>
-		<textarea name="{md_name}" id="{md_name}" rows="{md_rows}" cols="{md_cols}" placeholder="{md_placeholder}" {md_attribs}>{md_value}</textarea>
+		{md_label}
+		<textarea {md_name_and_id} {md_placeholder} {md_attribs} {md_rows} {md_cols}>{md_value}</textarea>
 	</div>
 	';
 		
@@ -36,6 +36,9 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 		$this->span_gamut += array(
 			"doInputs"        => 70
 		);
+		
+		# Set form to span element to prevent extra <p> tags
+		$this->contain_span_tags_re .= '|form';
 		
 		if(!empty($sInputGroupTemplate)){
 			$this->sInputGroupTemplate = $sInputGroupTemplate;
@@ -90,17 +93,27 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 	
 	protected function _doInputs_callback($matches) {
 		$whole_match = $matches[0];
-		$type = $this->encodeAttribute(trim($matches[1]));
+		
+		$type = $this->returnAttributeString('type', $this->encodeAttribute(trim($matches[1])));
+				
 		$label = $this->encodeAttribute(trim($matches[4]));
+		$name_id = $this->sanitize_key($label);		
+		$label = (!empty($label) && !empty($name_id)) ? '<label for="'.$name_id.'">'.$label.'</label>' : '';
+		$name_and_id = $this->returnAttributeString('name', $name_id) . ' ' 
+		             . $this->returnAttributeString('id', $name_id); 
+		
+		$placeholder = $this->returnAttributeString('placeholder', $this->encodeAttribute(trim($matches[10])));
+		
 		$value = $this->encodeAttribute(trim($matches[7]));
-		$placeholder = $this->encodeAttribute(trim($matches[10]));
 		
 		if($type != "textarea"){
+		    $value = $this->returnAttributeString('value', $value);
 			$attr = $this->doExtraAttributes("input", $dummy =& $matches[15]);
 		}else{
 			$attr = $this->doExtraAttributes("textarea", $dummy =& $matches[15]);
-			$rows = $this->encodeAttribute(trim($matches[12]));
-			$cols = $this->encodeAttribute(trim($matches[13]));
+			
+			$rows = $this->returnAttributeString('rows', $this->encodeAttribute(trim($matches[12])));
+			$cols = $this->returnAttributeString('cols', $this->encodeAttribute(trim($matches[13])));
 		}
 		
 		if($type != "textarea"){	
@@ -112,7 +125,7 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 		}
 		
 		$result = str_replace('{md_value}', $value, $result);
-		$result = str_replace('{md_name}', $this->sanitize_key($label), $result);
+		$result = str_replace('{md_name_and_id}', $name_and_id, $result);
 		$result = str_replace('{md_type}', $type, $result);
 		$result = str_replace('{md_label}', $label, $result);
 		$result = str_replace('{md_placeholder}', $placeholder, $result);
@@ -135,6 +148,10 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 		$key = preg_replace( '/[^a-z0-9_\-]/', '', $key );
 
 		return $key;
+	}
+	
+	function returnAttributeString($attrib, $value){
+	    return ((!empty($value)) ? $attrib.'="'.$value.'"' : '');
 	}
 
 }
