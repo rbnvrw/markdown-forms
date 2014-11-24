@@ -16,6 +16,6 @@
     "phpmailer/phpmailer": ">=5.2.9"
   },
   "autoload": {
-		"psr-0": { "RubenVerweij": "" }
+		"psr-4": { "RubenVerweij": "" }
   }
 }
