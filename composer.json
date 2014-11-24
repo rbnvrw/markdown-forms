@@ -3,12 +3,14 @@
   "type": "library",
   "description": "Class to add, validate and mail simple HTML/AJAX forms via Markdown",
   "keywords": ["markdown", "form"],
-  "homepage": "http://rubenverweij.nl/",
+  "homepage": "https://github.com/rbnvrw/markdown-forms",
   "license": "MIT",
   "authors": [
   {
     "name": "Ruben Verweij",
-    "email": "development@rubenverweij.nl"
+    "email": "development@rubenverweij.nl",
+    "homepage": "http://rubenverweij.nl",
+    "role": "Developer"
   }
   ],
   "require": {
