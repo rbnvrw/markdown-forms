@@ -9,12 +9,12 @@ The basic syntax is as follows:
 ?{type}("label" "value" "placeholder" rows*cols){.class}
 ```
 
-* **type**: the type of the `<input>` element
-* **label**: the label, this also gets converted to an `id` for the `<input>` element
-* **value**: the value of the `<input>` element
-* **placeholder**: the placeholder for the `<input>` element
-* **rows*cols**: number of rows and columns for the `<textarea>` element, ignored for other types
-* **class**: the class of the `<input>` element
+* **type**: the type of the `<input>` element (required)
+* **label**: the label, this also gets converted to an `id` for the `<input>` element (optional)
+* **value**: the value of the `<input>` element (optional)
+* **placeholder**: the placeholder for the `<input>` element (optional)
+* **rows*cols**: number of rows and columns for the `<textarea>` element, ignored for other types (required for `<textarea>`)
+* **class**: the class of the `<input>` element (optional)
 
 ## Example
 For example, to create a Twitter Bootstrap form:
