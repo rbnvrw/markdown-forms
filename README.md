@@ -1,7 +1,7 @@
 markdown-forms
 ==============
 
-Class to add, validate and mail simple HTML/AJAX forms via Markdown. Currently, basic `<input>` and `<textarea>` elements are supported.
+Class to add, validate and mail simple HTML/AJAX forms via Markdown. This class extends [Michelf Markdown](https://github.com/michelf/php-markdown). Currently, basic `<input>` and `<textarea>` elements are supported.
 
 ## Syntax
 The basic syntax is as follows:
