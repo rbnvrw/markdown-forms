@@ -94,8 +94,7 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 	protected function _doInputs_callback($matches) {
 		$whole_match = $matches[0];
 		
-		$type = $this->returnAttributeString('type', $this->encodeAttribute(trim($matches[1])));
-				
+		// Convert label, name, id, placeholder to tags
 		$label = $this->encodeAttribute(trim($matches[4]));
 		$name_id = $this->sanitize_key($label);		
 		$label = (!empty($label) && !empty($name_id)) ? '<label for="'.$name_id.'">'.$label.'</label>' : '';
@@ -104,21 +103,24 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 		
 		$placeholder = $this->returnAttributeString('placeholder', $this->encodeAttribute(trim($matches[10])));
 		
-		$value = $this->encodeAttribute(trim($matches[7]));
+		// Get type and value
+		$value = $this->encodeAttribute(trim($matches[7]));		
+		$type = $this->encodeAttribute(trim($matches[1]));
 		
 		if($type != "textarea"){
+		    // Generic input
 		    $value = $this->returnAttributeString('value', $value);
 			$attr = $this->doExtraAttributes("input", $dummy =& $matches[15]);
-		}else{
-			$attr = $this->doExtraAttributes("textarea", $dummy =& $matches[15]);
+			$type = $this->returnAttributeString('type', $type);
 			
+			$result = $this->sInputGroupTemplate;
+			$result = str_replace('{md_type}', $type, $result);
+		}else{
+		    // Textarea
+			$attr = $this->doExtraAttributes("textarea", $dummy =& $matches[15]);
 			$rows = $this->returnAttributeString('rows', $this->encodeAttribute(trim($matches[12])));
 			$cols = $this->returnAttributeString('cols', $this->encodeAttribute(trim($matches[13])));
-		}
-		
-		if($type != "textarea"){	
-			$result = $this->sInputGroupTemplate;
-		}else{
+			
 			$result = $this->sTextareaGroupTemplate;
 			$result = str_replace('{md_rows}', $rows, $result);
 			$result = str_replace('{md_cols}', $cols, $result);
@@ -126,7 +128,6 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 		
 		$result = str_replace('{md_value}', $value, $result);
 		$result = str_replace('{md_name_and_id}', $name_and_id, $result);
-		$result = str_replace('{md_type}', $type, $result);
 		$result = str_replace('{md_label}', $label, $result);
 		$result = str_replace('{md_placeholder}', $placeholder, $result);
 		$result = str_replace('{md_attribs}', $attr, $result);
