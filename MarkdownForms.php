@@ -157,6 +157,30 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 
 		return $this->hashPart($result);
 	}
+
+	protected function doSelects($text) {
+	#
+	# Turn Markdown input shortcuts into <select> tags.
+	#
+		#
+		# Select:  ?("label" {"option1" = "One", "option2" > "Two", "option3" = "Three"}){.class}
+		# Don't forget: encode * and _
+		#
+		
+		/*
+		\?\(\s*([\'\"])(.*?)\1\s*\{([\s|\S]+)\}\s*\)(\{(.*?)\})?
+		*/
+		$text = preg_replace_callback('
+		/
+		\?\(\s*([\'\"])(.*?)\1\s*\{([\s|\S]+)\}\s*\)(\{(.*?)\})?
+		/xs', array($this, '_doSelects_callback'), $text);
+
+		return $text;
+	}
+	
+	protected function _doInputs_callback($matches){
+		
+	}
 	
 	/**
 	 * Sanitizes a string key.
