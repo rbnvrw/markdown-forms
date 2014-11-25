@@ -20,6 +20,15 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 	</div>
 	';
 	
+	private $sCheckboxGroupTemplate = '
+	<div class="{md_type}">
+		<label>
+			<input {md_type} {md_name_and_id} {md_value} {md_attribs}>
+			{md_label}
+		</label>
+	</div>
+	';
+	
 	private $sTextareaGroupTemplate = '
 	<div class="form-group">
 		{md_label}
@@ -27,7 +36,7 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 	</div>
 	';
 		
-	public function __construct($sInputGroupTemplate = '', $sTextareaGroupTemplate = '') {
+	public function __construct($sInputGroupTemplate = '', $sCheckboxGroupTemplate = '', $sTextareaGroupTemplate = '') {
 	#
 	# Constructor function. Initialize the parser object.
 	#
@@ -42,6 +51,10 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 		
 		if(!empty($sInputGroupTemplate)){
 			$this->sInputGroupTemplate = $sInputGroupTemplate;
+		}
+		
+		if(!empty($sCheckboxGroupTemplate)){
+			$this->sCheckboxGroupTemplate = $sCheckboxGroupTemplate;
 		}
 		
 		if(!empty($sTextareaGroupTemplate)){
@@ -97,7 +110,6 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 		// Convert label, name, id, placeholder to tags
 		$label = $this->encodeAttribute(trim($matches[4]));
 		$name_id = $this->sanitize_key($label);		
-		$label = (!empty($label) && !empty($name_id)) ? '<label for="'.$name_id.'">'.$label.'</label>' : '';
 		$name_and_id = $this->returnAttributeString('name', $name_id) . ' ' 
 		             . $this->returnAttributeString('id', $name_id); 
 		
@@ -107,23 +119,34 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 		$value = $this->encodeAttribute(trim($matches[7]));		
 		$type = $this->encodeAttribute(trim($matches[1]));
 		
-		if($type != "textarea"){
-		    // Generic input
-		    $value = $this->returnAttributeString('value', $value);
-			$attr = $this->doExtraAttributes("input", $dummy =& $matches[15]);
-			$type = $this->returnAttributeString('type', $type);
-			
-			$result = $this->sInputGroupTemplate;
-			$result = str_replace('{md_type}', $type, $result);
-		}else{
-		    // Textarea
+		if($type == "textarea"){
+			// Textarea
 			$attr = $this->doExtraAttributes("textarea", $dummy =& $matches[15]);
 			$rows = $this->returnAttributeString('rows', $this->encodeAttribute(trim($matches[12])));
 			$cols = $this->returnAttributeString('cols', $this->encodeAttribute(trim($matches[13])));
+			$label = (!empty($label) && !empty($name_id)) ? '<label for="'.$name_id.'">'.$label.'</label>' : '';
 			
 			$result = $this->sTextareaGroupTemplate;
 			$result = str_replace('{md_rows}', $rows, $result);
 			$result = str_replace('{md_cols}', $cols, $result);
+		}elseif($type == "checkbox" || $type == "radio"){
+			// Generic input
+		    $value = $this->returnAttributeString('value', $value);
+			$attr = $this->doExtraAttributes("input", $dummy =& $matches[15]);
+			$type = $this->returnAttributeString('type', $type);
+			
+			$result = $this->sCheckboxGroupTemplate;
+			$result = str_replace('{md_type}', $type, $result);
+		}else{
+			// Generic input
+		    $value = $this->returnAttributeString('value', $value);
+			$attr = $this->doExtraAttributes("input", $dummy =& $matches[15]);
+			$type = $this->returnAttributeString('type', $type);
+			$label = (!empty($label) && !empty($name_id)) ? '<label for="'.$name_id.'">'.$label.'</label>' : '';
+			
+			$result = $this->sInputGroupTemplate;
+			$result = str_replace('{md_type}', $type, $result);
+		    
 		}
 		
 		$result = str_replace('{md_value}', $value, $result);
