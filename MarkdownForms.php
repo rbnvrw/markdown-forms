@@ -178,7 +178,7 @@ class MarkdownForms extends \Michelf\MarkdownExtra {
 		return $text;
 	}
 	
-	protected function _doInputs_callback($matches){
+	protected function _doSelects_callback($matches){
 		
 	}
 	
